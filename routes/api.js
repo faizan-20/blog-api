@@ -1,44 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/posts', (req, res) => {
-    res.json({
-        message: 'GET Blog posts',
-    });
-});
+const comment_controller = require('../controllers/commentController');
+const post_controller = require('../controllers/postController');
 
-router.get('/post/:postId', (req, res) => {
-    res.send(`GET blog post ${req.params.postId}`);
-});
+router.get('/posts', post_controller.post_list);
 
-router.post('/post', (req, res) => {
-    res.json({
-        message: 'POST blog post',
-    });
-});
+router.get('/posts/:postId', post_controller.post_detail);
 
-router.put('/post/:postId', (req, res) => {
-    res.send(`PUT blog post ${req.params.postId}`);
-});
+router.post('/posts', post_controller.post_create_post);
 
-router.delete('/post/:postId', (req, res) => {
-    res.send(`DELETE blog post ${req.params.postId}`);
-})
+router.put('/posts/:postId', post_controller.post_update_post);
 
-router.get('/post/:postId/comments', (req, res) => {
-    res.send(`GET comments for post ${req.params.postId}`);
-});
+router.delete('/posts/:postId', post_controller.post_delete_post);
 
-router.post('/post/:postId/comment', (req, res) => {
-    res.send(`POST comment for post ${req.params.postId}`);
-});
+router.get('/posts/:postId/comments', comment_controller.comment_list);
 
-router.put('/post/:postId/comments/:commentId', (req,res) => {
-    res.send(`PUT comment ${req.params.commentId}`);
-});
+router.get('/posts/:postId/comments/:commentId', comment_controller.comment_detail);
 
-router.delete('/post/:postId/comments/:commentId', (req, res) => {
-    res.send(`DELETE comment ${req.params.commentId}`);
-});
+router.post('/posts/:postId/comments', comment_controller.comment_create_post);
+
+router.put('/posts/:postId/comments/:commentId', comment_controller.comment_update_post);
+
+router.delete('/posts/:postId/comments/:commentId', comment_controller.comment_delete_post);
 
 module.exports = router;
