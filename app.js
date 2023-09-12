@@ -8,9 +8,13 @@ require("dotenv").config();
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+require('./auth/auth');
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const apiRouter = require('./routes/api');
+const secureRoter = require('./routes/secure-api');
+const passport = require('passport');
 
 const app = express();
 
@@ -37,6 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', apiRouter);
+app.use('/api', passport.authenticate('jwt', { session: false }), secureRoter);
 
 
 // catch 404 and forward to error handler
@@ -54,5 +59,17 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+function verifyToken(req, res, next) {
+  const bearerHeader = req.headers['authorization'];
+  if (typeof bearerHeader !== 'undefined') {
+    const bearer = bearerHeader.split(' ');
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    next();
+  } else {
+    res.sendStatus(403);
+  }
+}
 
 module.exports = app;

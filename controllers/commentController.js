@@ -2,21 +2,18 @@ const Comment = require('../models/comment');
 const Post = require('../models/post');
 
 const asyncHandler = require('express-async-handler');
+const jwt = require('jsonwebtoken');
 
 exports.comment_list = asyncHandler(async (req, res, next) => {
     const comments = await Comment.find({ post: req.params.postId }).exec();
 
-    res.json({
-        comments
-    });
+    res.json(comments);
 });
 
 exports.comment_detail = asyncHandler(async (req, res, next) => {
     const comment = await Comment.findById(req.params.commentId).exec();
 
-    res.json({
-        comment
-    });
+    res.json(comment);
 });
 
 exports.comment_create_post = asyncHandler(async (req, res, next) => {
@@ -28,9 +25,7 @@ exports.comment_create_post = asyncHandler(async (req, res, next) => {
     });
 
     await comment.save();
-    res.json ({
-        comment
-    });
+    res.json (comment);
 });
 
 exports.comment_update_post = asyncHandler(async (req, res, next) => {
@@ -45,16 +40,18 @@ exports.comment_update_post = asyncHandler(async (req, res, next) => {
     });
 
     await Comment.findByIdAndUpdate(req.params.CommentId, comment, {});
-    res.json ({
-        comment
-    });
+    res.json (comment);
 });
 
-exports.comment_delete_post = asyncHandler(async (req, res, next) => {
-    await Comment.findByIdAndDelete(req.params.commentId);
-
-    const comments = await Comment.find({ post: req.params.PostId }).sort({ timestamp: 1 }).exec();
-    res.json ({
-        comments
+exports.comment_delete_post = asyncHandler((req, res, next) => {
+    jwt.verify(req.token, 'secretkey', async(err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            await Comment.findByIdAndDelete(req.params.commentId);
+        
+            const comments = await Comment.find({ post: req.params.PostId }).sort({ timestamp: 1 }).exec();
+            res.json (comments);
+        }
     });
 });
